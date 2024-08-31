@@ -1,0 +1,10 @@
+{
+    "services": {
+      "add_message": "mdi:message-plus",
+      "add_bulk_messages": "mdi:message-plus",
+      "get_message": "mdi:message-text",
+      "edit_message": "mdi:message-draw",
+      "delete_message": "mdi:comment-remove",
+      "get_messages": "mdi:message-text"
+    }
+}

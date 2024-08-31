@@ -1,0 +1,113 @@
+add_message:
+  name: "Add Message"
+  description: "Adds a new message."
+  fields:
+    slug:
+      name: "Identifier"
+      description: "Unique identifier for the message, using only alphanumeric characters and underscores."
+      required: true
+      selector:
+        text: {}
+      example: "welcome_message"
+    message:
+      name: "Message"
+      description: "The content of the message. It can be a string or a list of strings."
+      required: true
+      selector:
+        object: {}
+      example: "Hello, welcome home!"
+
+get_message:
+  name: "Get Message"
+  description: "Retrieves a message by its identifier."
+  fields:
+    slug:
+      name: "Identifier"
+      description: "Unique identifier for the message."
+      required: true
+      selector:
+        text: {}
+      example: "welcome_message"
+    replace:
+      name: "Replacements"
+      description: "List of values to replace placeholders in the message."
+      required: false
+      selector:
+        object: {}
+      example: ['John', '25°C']
+    filter:
+      name: "Filter"
+      description: "Optional filter to modify the retrieval of the message. Use 'random' to get a random message from a list."
+      required: false
+      selector:
+        select:
+          mode: dropdown
+          options:
+            - label: Random
+              value: random
+      example: "random"
+
+get_messages:
+  name: "Get Multiple Messages"
+  description: "Retrieves multiple messages based on an optional filter."
+  fields:
+    filter:
+      name: "Filter"
+      description: "Optional filter to search for specific messages with optional replacements."
+      required: false
+      selector:
+        object: {}
+      example: 
+        - slug: "welcome_message"
+          replace: 
+            - "10%"
+          filter: random
+        - slug: "arrived_home"
+        - slug: "alarm_trigged"
+
+edit_message:
+  name: "Edit Message"
+  description: "Edits an existing message."
+  fields:
+    slug:
+      name: "Identifier"
+      description: "Unique identifier for the message to be edited."
+      required: true
+      selector:
+        text: {}
+      example: "welcome_message"
+    message:
+      name: "New Message"
+      description: "New content of the message. It can be a string or a list of strings."
+      required: true
+      selector:
+        object: {}
+      example: "Hello again, welcome back!"
+
+delete_message:
+  name: "Delete Message"
+  description: "Deletes a message by its identifier."
+  fields:
+    slug:
+      name: "Identifier"
+      description: "Unique identifier for the message to be deleted."
+      required: true
+      selector:
+        text: {}
+      example: "welcome_message"
+
+add_bulk_messages:
+  name: "Add Bulk Messages"
+  description: "Adds multiple messages at once."
+  fields:
+    data:
+      name: "Messages Data"
+      description: "A dictionary where each key is a slug and the corresponding value is a list of messages."
+      required: true
+      selector:
+        object: {}
+      example: >
+        {
+          "morning_greeting": ["Good morning!", "Have a great day!"],
+          "evening_greeting": ["Good evening!", "Hope you had a great day!"]
+        }
