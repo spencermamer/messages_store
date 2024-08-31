@@ -3,7 +3,7 @@
     "name": "Messages Store",
     "codeowners": ["@FernandoZueet"],
     "config_flow": true,
-    "dependencies": [],
+    "dependencies": ["http"],
     "documentation": "https://github.com/FernandoZueet/messages_store",
     "integration_type": "service",
     "iot_class": "local_push",
