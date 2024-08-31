@@ -1,6 +1,7 @@
 
 # Messages Store
-![image](https://github.com/user-attachments/assets/c97c2cd8-819c-4f35-8d7b-cb78cfa26ef3)
+![image](https://github.com/user-attachments/assets/c0977bda-d8da-4026-af73-972d302a53cc)
+
 
 **Messages Store** is a custom Home Assistant component designed to store, manage, and retrieve messages in a SQLite database. Whether it's for TTS messages, mobile notifications, Telegram alerts, or other applications, this component allows you to dynamically handle text data across various automation scenarios. You can easily add, edit, delete, and retrieve messages.
 
@@ -41,6 +42,19 @@
 - **[Add multiple messages](#6-messages_storeadd_bulk_messages)** 
 
 ## UI Panel
+
+### Search
+![image](https://github.com/user-attachments/assets/f65fadbd-5fbe-49bb-a02d-e681e04b081f)
+
+### Edit
+![image](https://github.com/user-attachments/assets/eb02c5d0-5aad-44cf-85a1-d8fbfa839d3b)
+
+### Add
+![image](https://github.com/user-attachments/assets/29dde9e1-5a0a-4977-8c67-5ac8d71c3e6d)
+
+### Preview tags 
+![image](https://github.com/user-attachments/assets/711fb4b0-ca92-489c-89c0-2343aedec3d1)
+
 
 ## Services
 
