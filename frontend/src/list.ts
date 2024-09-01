@@ -6,7 +6,7 @@ import { customElement, property, state } from "lit/decorators.js";
 export class MessagesStoreList extends LitElement {
 	@property({ type: Array }) messages = [];
 	@property({ type: String }) sortOrder: "asc" | "desc" = "asc";
-	@state() groupMessages = false; 
+	@state() groupMessages = true;
 
 	createRenderRoot() {
 		return this;

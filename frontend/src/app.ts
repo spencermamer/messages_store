@@ -23,7 +23,7 @@ export class MessagesStore extends LitElement {
 	@state() notification: { message: string; type: string } | null = null;
 	@state() searchTerm = "";
 	@state() sortOrder: "asc" | "desc" = "asc";
-	@state() groupMessages = false; 
+	@state() groupMessages = true;
 
 	@property({ type: Object }) hass;
 
@@ -145,7 +145,7 @@ export class MessagesStore extends LitElement {
 					msg.slug.toLowerCase().includes(term) ||
 					msg.message.toLowerCase().includes(term)
 			);
-			this.sortMessages(); 
+			this.sortMessages();
 		}
 	}
 
@@ -206,10 +206,10 @@ export class MessagesStore extends LitElement {
 	render() {
 		return html`
 			<div class="min-h-screen p-4 dark:bg-zinc-900 dark:text-white">
-				<div class="flex justify-between items-center mb-4">
-					<h1 class="text-2xl font-bold">Messages Store</h1>
-					<div>
-						<label class="inline-flex items-center">
+				<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
+					<h1 class="text-2xl font-bold mb-4 sm:mb-0">Messages Store</h1>
+					<div class="flex flex-col sm:flex-row sm:items-center">
+						<label class="inline-flex items-center mb-4 sm:mb-0 sm:mr-4">
 							<input
 								type="checkbox"
 								class="form-checkbox"
@@ -219,7 +219,7 @@ export class MessagesStore extends LitElement {
 							<span class="ml-2">Group slugs</span>
 						</label>
 						<button
-							class="bg-zinc-500 text-white font-bold px-4 py-2 rounded ml-4"
+							class="bg-zinc-500 text-white font-bold px-4 py-2 rounded"
 							@click=${this.addModal}
 						>
 							Add Message
@@ -227,31 +227,33 @@ export class MessagesStore extends LitElement {
 					</div>
 				</div>
 				<input
-					class="w-full text-sm outline-none border-b-2 border-zinc-600 bg-zinc-800 focus:border-zinc-500 focus:outline-none p-2 text-white mr-2"
+					class="w-full text-sm outline-none border-b-2 border-zinc-600 bg-zinc-800 focus:border-zinc-500 focus:outline-none p-2 text-white mb-4"
 					type="text"
 					placeholder="Search messages..."
 					@input=${this.handleSearch}
 				/>
 
-				${this.messages.length > 0
-					? html`
-							<messages-store-list
-								.messages=${this.messages}
-								@edit=${this.editModal}
-								@delete=${this.deleteMessage}
-								@save=${this.saveMessage}
-								@sort=${this.toggleSortOrder}
-								.sortOrder=${this.sortOrder}
-							></messages-store-list>
-							<div class="mt-4 text-sm text-gray-500">
-								Total Messages: ${this.messages.length}
-							</div>
-						`
-					: html`
-							<div class="mt-4 text-sm text-gray-500">
-								No messages found.
-							</div>
-						`}
+				<div class="overflow-x-auto">
+					${this.messages.length > 0
+						? html`
+								<messages-store-list
+									.messages=${this.messages}
+									@edit=${this.editModal}
+									@delete=${this.deleteMessage}
+									@save=${this.saveMessage}
+									@sort=${this.toggleSortOrder}
+									.sortOrder=${this.sortOrder}
+								></messages-store-list>
+								<div class="mt-4 text-sm text-gray-500">
+									Total Messages: ${this.messages.length}
+								</div>
+							`
+						: html`
+								<div class="mt-4 text-sm text-gray-500">
+									No messages found.
+								</div>
+							`}
+				</div>
 				${this.isModalOpen
 					? html`
 							<messages-store-modal
