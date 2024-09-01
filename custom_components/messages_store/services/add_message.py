@@ -12,7 +12,7 @@ async def add_message(hass: HomeAssistant, repository: MessagesStore, call: Serv
         message = call.data.get('message')
 
         if isinstance(message, list):
-            message = ", ".join(message)
+            message = "| ".join(message)
 
         if await hass.async_add_executor_job(repository.slug_exists, slug):
             return {"status": False, "message": f"Slug '{slug}' already exists"}

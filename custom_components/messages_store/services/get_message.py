@@ -29,7 +29,7 @@ async def get_message(hass: HomeAssistant, repository: MessagesStore, call: Serv
                 replacement_message = repository.retrieve_message(slug_name)
                 
                 if replacement_message and not slug_pattern.search(replacement_message):
-                    replacement_list = [msg.strip() for msg in replacement_message.split(',')]
+                    replacement_list = [msg.strip() for msg in replacement_message.split('|')]
                     return random.choice(replacement_list) if len(replacement_list) > 1 else replacement_list[0]
                 else:
                     return match.group(0)
@@ -44,7 +44,7 @@ async def get_message(hass: HomeAssistant, repository: MessagesStore, call: Serv
             message = slug_pattern.sub(replace_slugs, message)
             message = state_pattern.sub(replace_states, message)
 
-            message_list = [msg.strip() for msg in message.split(',')]
+            message_list = [msg.strip() for msg in message.split('|')]
 
             if filter_option == "random":
                 message_list = [random.choice(message_list)]

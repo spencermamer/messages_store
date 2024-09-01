@@ -1,9 +1,15 @@
 import voluptuous as vol
 
+def validate_no_pipe_char(value):
+    """Validate that the message does not contain the '|' character."""
+    if '|' in value:
+        raise vol.Invalid("The '|' character is not allowed in messages.")
+    return value
+
 SLUG_SCHEMA = vol.All(vol.Match(r'^[a-zA-Z0-9_]+$'), vol.Length(min=1, max=150))
 MESSAGE_SCHEMA = vol.Any(
-    vol.All(str, vol.Length(min=1, max=2000)),  # Validação de tamanho para string
-    [vol.All(str, vol.Length(min=1, max=2000))]  # Validação de tamanho para lista de strings
+    vol.All(str, vol.Length(min=1, max=2000), validate_no_pipe_char),  
+    [vol.All(str, vol.Length(min=1, max=2000), validate_no_pipe_char)]  
 )
 
 FILTER_ITEM_SCHEMA = vol.Schema({
@@ -33,6 +39,6 @@ GET_MESSAGES_SCHEMA = vol.Schema({
 
 ADD_BULK_MESSAGES_SCHEMA = vol.Schema({
     vol.Required(str): vol.All(vol.Schema({
-        vol.Required(vol.All(str, vol.Length(min=1, max=150))): vol.All([vol.Required(vol.Any(str, vol.Length(min=1, max=2000)))])
+        vol.Required(vol.All(str, vol.Length(min=1, max=150))): vol.All([vol.Required(vol.Any(str, vol.Length(min=1, max=2000), validate_no_pipe_char))])
     }))
 })

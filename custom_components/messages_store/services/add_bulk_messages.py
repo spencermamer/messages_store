@@ -27,7 +27,7 @@ async def add_bulk_messages(hass: HomeAssistant, repository: MessagesStore, call
                 continue
 
             if isinstance(messages, list):
-                message = ", ".join(messages)
+                message = "| ".join(messages)  
             else:
                 message = str(messages)
 
