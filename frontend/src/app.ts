@@ -54,7 +54,7 @@ export class MessagesStore extends LitElement {
 				if (Array.isArray(msg.message)) {
 					msg.message.forEach((message) => {
 						const splitMessages = message
-							.split(",")
+							.split("|")
 							.map((m) => m.trim());
 						splitMessages.forEach((singleMessage) => {
 							processedMessages.push({
@@ -128,7 +128,7 @@ export class MessagesStore extends LitElement {
 		const { slug, messages, service } = e.detail;
 		const response = await this.callService("messages_store", service, {
 			slug,
-			message: messages.join(", "),
+			message: messages,
 		});
 		this.showNotification(
 			response.message,

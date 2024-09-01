@@ -12,7 +12,7 @@ async def edit_message(hass: HomeAssistant, repository: MessagesStore, call: Ser
         new_message = call.data.get('message')
 
         if isinstance(new_message, list):
-            new_message = ", ".join(new_message)
+            new_message = "| ".join(new_message)
 
         updated = await hass.async_add_executor_job(repository.update_message, slug, new_message)
 

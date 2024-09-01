@@ -95,7 +95,7 @@ export class MessagesStoreList extends LitElement {
 								</td>
 								<td class="border-b border-zinc-600 px-4 py-3">
 									${message.message
-										.split(", ")
+										.split("| ")
 										.map(
 											(msg) => html`
 												<div
