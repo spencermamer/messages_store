@@ -98,10 +98,7 @@ export class MessagesStoreModal extends LitElement {
 					return match;
 				}
 
-				const selectedMessage =
-					matchingMessages[
-						Math.floor(Math.random() * matchingMessages.length)
-					].message;
+				const selectedMessage = matchingMessages[0].message;
 
 				if (/\(slug:[^)]+\)/.test(selectedMessage)) {
 					return match;
