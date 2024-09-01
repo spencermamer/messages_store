@@ -22,6 +22,8 @@ export class MessagesStore extends LitElement {
 	@state() isModalOpen = false;
 	@state() notification: { message: string; type: string } | null = null;
 	@state() searchTerm = "";
+	@state() sortOrder: "asc" | "desc" = "asc";
+	@state() groupMessages = false; 
 
 	@property({ type: Object }) hass;
 
@@ -31,7 +33,22 @@ export class MessagesStore extends LitElement {
 
 	async connectedCallback() {
 		super.connectedCallback();
+		this.loadConfig(); 
 		await this.loadMessages();
+	}
+
+	loadConfig() {
+		const config = localStorage.getItem("messages-store-config");
+		if (config) {
+			this.groupMessages = JSON.parse(config).groupMessages;
+		}
+	}
+
+	saveConfig() {
+		localStorage.setItem(
+			"messages-store-config",
+			JSON.stringify({ groupMessages: this.groupMessages })
+		);
 	}
 
 	async loadMessages() {
@@ -40,10 +57,11 @@ export class MessagesStore extends LitElement {
 			"get_messages"
 		);
 		this.messages = this.processMessages(response?.data);
+		this.sortMessages();
 	}
 
 	processMessages(data) {
-		const processedMessages: Array<{
+		let processedMessages: Array<{
 			slug: string;
 			message: string;
 			originalMessage: string[];
@@ -52,23 +70,44 @@ export class MessagesStore extends LitElement {
 		if (Array.isArray(data)) {
 			data.forEach((msg) => {
 				if (Array.isArray(msg.message)) {
-					msg.message.forEach((message) => {
-						const splitMessages = message
-							.split("|")
-							.map((m) => m.trim());
-						splitMessages.forEach((singleMessage) => {
+					if (this.groupMessages) {
+						processedMessages.push({
+							slug: msg.slug,
+							message: msg.message[0],
+							originalMessage: msg.message,
+						});
+					} else {
+						msg.message.forEach((message) => {
 							processedMessages.push({
 								slug: msg.slug,
-								message: singleMessage,
+								message: message.trim(),
 								originalMessage: msg.message,
 							});
 						});
-					});
+					}
 				}
 			});
 		}
 
 		return processedMessages;
+	}
+
+	sortMessages() {
+		this.messages.sort((a, b) => {
+			const compare = a.slug.localeCompare(b.slug);
+			return this.sortOrder === "asc" ? compare : -compare;
+		});
+	}
+
+	toggleSortOrder() {
+		this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
+		this.sortMessages();
+	}
+
+	toggleGroupMessages() {
+		this.groupMessages = !this.groupMessages;
+		this.saveConfig();
+		this.loadMessages();
 	}
 
 	async callService(domain, service, data = {}, target = {}) {
@@ -106,6 +145,7 @@ export class MessagesStore extends LitElement {
 					msg.slug.toLowerCase().includes(term) ||
 					msg.message.toLowerCase().includes(term)
 			);
+			this.sortMessages(); 
 		}
 	}
 
@@ -168,12 +208,23 @@ export class MessagesStore extends LitElement {
 			<div class="min-h-screen p-4 dark:bg-zinc-900 dark:text-white">
 				<div class="flex justify-between items-center mb-4">
 					<h1 class="text-2xl font-bold">Messages Store</h1>
-					<button
-						class="bg-zinc-500 text-white font-bold px-4 py-2 rounded"
-						@click=${this.addModal}
-					>
-						Add Message
-					</button>
+					<div>
+						<label class="inline-flex items-center">
+							<input
+								type="checkbox"
+								class="form-checkbox"
+								.checked=${this.groupMessages}
+								@click=${this.toggleGroupMessages}
+							/>
+							<span class="ml-2">Group slugs</span>
+						</label>
+						<button
+							class="bg-zinc-500 text-white font-bold px-4 py-2 rounded ml-4"
+							@click=${this.addModal}
+						>
+							Add Message
+						</button>
+					</div>
 				</div>
 				<input
 					class="w-full text-sm outline-none border-b-2 border-zinc-600 bg-zinc-800 focus:border-zinc-500 focus:outline-none p-2 text-white mr-2"
@@ -189,6 +240,8 @@ export class MessagesStore extends LitElement {
 								@edit=${this.editModal}
 								@delete=${this.deleteMessage}
 								@save=${this.saveMessage}
+								@sort=${this.toggleSortOrder}
+								.sortOrder=${this.sortOrder}
 							></messages-store-list>
 							<div class="mt-4 text-sm text-gray-500">
 								Total Messages: ${this.messages.length}

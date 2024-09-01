@@ -1,10 +1,12 @@
 import "./styles.css";
 import { LitElement, html } from "lit";
-import { customElement, property } from "lit/decorators.js";
+import { customElement, property, state } from "lit/decorators.js";
 
 @customElement("messages-store-list")
 export class MessagesStoreList extends LitElement {
 	@property({ type: Array }) messages = [];
+	@property({ type: String }) sortOrder: "asc" | "desc" = "asc";
+	@state() groupMessages = false; 
 
 	createRenderRoot() {
 		return this;
@@ -14,14 +16,22 @@ export class MessagesStoreList extends LitElement {
 		this.dispatchEvent(new CustomEvent("edit", { detail: message }));
 	}
 
+	loadConfig() {
+		const config = localStorage.getItem("messages-store-config");
+		if (config) {
+			this.groupMessages = JSON.parse(config).groupMessages;
+		}
+	}
+
 	handleDelete(message) {
+		this.loadConfig();
 		const isEdit = message.originalMessage.length > 1;
 		if (
 			confirm(
 				`Are you sure you want to delete the message with slug "${message.slug}"?`
 			)
 		) {
-			if (isEdit) {
+			if (isEdit && !this.groupMessages) {
 				const newMessage = message.originalMessage.filter(
 					(item) => item !== message.message
 				);
@@ -59,15 +69,21 @@ export class MessagesStoreList extends LitElement {
 			);
 	}
 
+	handleSortClick() {
+		this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
+		this.dispatchEvent(new CustomEvent("sort", { detail: this.sortOrder }));
+	}
+
 	render() {
 		return html`
 			<table class="min-w-full text-sm border-collapse">
 				<thead>
 					<tr>
 						<th
-							class="px-4 py-3 text-left border-b border-zinc-600 w-1/5"
+							class="px-4 py-3 text-left border-b border-zinc-600 w-1/5 cursor-pointer"
+							@click=${this.handleSortClick}
 						>
-							Slug
+							Slug ${this.sortOrder === "asc" ? "↑" : "↓"}
 						</th>
 						<th
 							class="px-4 py-3 text-left border-b border-zinc-600"
