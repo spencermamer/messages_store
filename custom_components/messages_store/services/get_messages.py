@@ -7,6 +7,7 @@ from ..repository import MessagesStore
 async def get_messages(hass: HomeAssistant, repository: MessagesStore, call: ServiceCall) -> ServiceResponse:
     try:
         filter_list = call.data.get('filter', [])
+        grouped = call.data.get('grouped', False)  
 
         def replace_slugs_in_message(message, slug, processed_slugs=None):
             if processed_slugs is None:
@@ -41,7 +42,7 @@ async def get_messages(hass: HomeAssistant, repository: MessagesStore, call: Ser
             return message
 
         def retrieve_filtered_messages():
-            results = []
+            results = {} if grouped else []
             for filter_item in filter_list:
                 slug = filter_item['slug']
                 replace_list = filter_item.get('replace', [])
@@ -60,17 +61,25 @@ async def get_messages(hass: HomeAssistant, repository: MessagesStore, call: Ser
                         for value in replace_list:
                             message_list[i] = message_list[i].replace('%s', str(value), 1)
 
-                    results.append({
-                        "slug": slug,
-                        "message": message_list
-                    })
+                    if grouped:
+                        results[slug] = message_list                        
+                    else:
+                        results.append({
+                            "slug": slug,
+                            "message": message_list
+                        })
             return results
 
-        if filter_list:
-            data = await hass.async_add_executor_job(retrieve_filtered_messages)
-        else:
-            def retrieve_all_messages():
-                all_results = repository.retrieve_all_messages()
+        def retrieve_all_messages():
+            all_results = repository.retrieve_all_messages()
+            if grouped:
+                formatted_results = {}
+                for entry in all_results:
+                    slug = entry['slug']
+                    message_list = [msg.strip() for msg in entry['message'].split('|')]
+                    formatted_results[slug] = message_list
+                return formatted_results
+            else:
                 formatted_results = []
                 for entry in all_results:
                     slug = entry['slug']
@@ -81,6 +90,9 @@ async def get_messages(hass: HomeAssistant, repository: MessagesStore, call: Ser
                     })
                 return formatted_results
 
+        if filter_list:
+            data = await hass.async_add_executor_job(retrieve_filtered_messages)
+        else:
             data = await hass.async_add_executor_job(retrieve_all_messages)
 
         if data:
