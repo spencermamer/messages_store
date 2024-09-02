@@ -8,6 +8,7 @@ async def get_messages(hass: HomeAssistant, repository: MessagesStore, call: Ser
     try:
         filter_list = call.data.get('filter', [])
         grouped = call.data.get('grouped', False)  
+        force_random = call.data.get('force_random', False) 
 
         def replace_slugs_in_message(message, slug, processed_slugs=None):
             if processed_slugs is None:
@@ -54,7 +55,7 @@ async def get_messages(hass: HomeAssistant, repository: MessagesStore, call: Ser
                     message = replace_slugs_in_message(message, slug)
                     message_list = [msg.strip() for msg in message.split('|')]
 
-                    if filter_option == "random":
+                    if filter_option == "random" or force_random:
                         message_list = [random.choice(message_list)]
 
                     for i in range(len(message_list)):
@@ -62,11 +63,11 @@ async def get_messages(hass: HomeAssistant, repository: MessagesStore, call: Ser
                             message_list[i] = message_list[i].replace('%s', str(value), 1)
 
                     if grouped:
-                        results[slug] = message_list                        
+                        results[slug] = message_list[0] if filter_option == "random" or force_random else message_list                    
                     else:
                         results.append({
                             "slug": slug,
-                            "message": message_list
+                            "message": message_list[0] if filter_option == "random" or force_random else message_list 
                         })
             return results
 
@@ -77,6 +78,8 @@ async def get_messages(hass: HomeAssistant, repository: MessagesStore, call: Ser
                 for entry in all_results:
                     slug = entry['slug']
                     message_list = [msg.strip() for msg in entry['message'].split('|')]
+                    if force_random:
+                        message_list = random.choice(message_list)
                     formatted_results[slug] = message_list
                 return formatted_results
             else:
@@ -84,6 +87,8 @@ async def get_messages(hass: HomeAssistant, repository: MessagesStore, call: Ser
                 for entry in all_results:
                     slug = entry['slug']
                     message_list = [msg.strip() for msg in entry['message'].split('|')]
+                    if force_random:
+                        message_list = random.choice(message_list)
                     formatted_results.append({
                         "slug": slug,
                         "message": message_list

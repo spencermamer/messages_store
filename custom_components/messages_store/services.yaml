@@ -71,6 +71,13 @@ get_messages:
       selector:
         boolean: {}
       example: true
+    force_random:
+      name: "Force Random"
+      description: "Forces random selection of messages for all slugs."
+      required: false
+      selector:
+        boolean: {}
+      example: false
 
 edit_message:
   name: "Edit Message"

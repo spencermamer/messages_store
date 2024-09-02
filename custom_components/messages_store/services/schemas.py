@@ -36,6 +36,7 @@ GET_SCHEMA = vol.Schema({
 GET_MESSAGES_SCHEMA = vol.Schema({
     vol.Optional('filter', default=[]): [FILTER_ITEM_SCHEMA],
     vol.Optional('grouped', default=False): vol.Boolean(),  
+    vol.Optional('force_random', default=False): vol.Boolean(), 
 })
 
 ADD_BULK_MESSAGES_SCHEMA = vol.Schema({
