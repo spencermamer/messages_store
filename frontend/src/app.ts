@@ -13,11 +13,8 @@ declare global {
 
 @customElement("messages-store")
 export class MessagesStore extends LitElement {
-	@state() messages: Array<{
-		slug: string;
-		message: string;
-		originalMessage: string[];
-	}> = [];
+	@state() allMessages: Array<{ slug: string; message: string; originalMessage: string[] }> = [];
+	@state() messages: Array<{ slug: string; message: string; originalMessage: string[] }> = [];
 	@state() message = { slug: "", message: "", originalMessage: [""] };
 	@state() isModalOpen = false;
 	@state() notification: { message: string; type: string } | null = null;
@@ -33,9 +30,21 @@ export class MessagesStore extends LitElement {
 
 	async connectedCallback() {
 		super.connectedCallback();
-		this.loadConfig(); 
+		this.loadConfig();
 		await this.loadMessages();
+		document.addEventListener("keydown", this.handleKeyDown);
 	}
+
+	disconnectedCallback() {
+		document.removeEventListener("keydown", this.handleKeyDown);
+		super.disconnectedCallback();
+	}
+
+	handleKeyDown = (e: KeyboardEvent) => {
+		if (e.ctrlKey && e.altKey && e.key === "+") {
+			this.addModal(); 
+		} 
+	};
 
 	loadConfig() {
 		const config = localStorage.getItem("messages-store-config");
@@ -52,20 +61,13 @@ export class MessagesStore extends LitElement {
 	}
 
 	async loadMessages() {
-		const response = await this.callService(
-			"messages_store",
-			"get_messages"
-		);
-		this.messages = this.processMessages(response?.data);
-		this.sortMessages();
+		const response = await this.callService("messages_store", "get_messages");
+		this.allMessages = this.processMessages(response?.data);
+		this.filterMessages();
 	}
 
 	processMessages(data) {
-		let processedMessages: Array<{
-			slug: string;
-			message: string;
-			originalMessage: string[];
-		}> = [];
+		let processedMessages: Array<{ slug: string; message: string; originalMessage: string[] }> = [];
 
 		if (Array.isArray(data)) {
 			data.forEach((msg) => {
@@ -138,15 +140,15 @@ export class MessagesStore extends LitElement {
 	filterMessages() {
 		const term = this.searchTerm.toLowerCase();
 		if (!term) {
-			this.loadMessages();
+			this.messages = [...this.allMessages];
 		} else {
-			this.messages = this.messages.filter(
+			this.messages = this.allMessages.filter(
 				(msg: { slug: string; message: string }) =>
 					msg.slug.toLowerCase().includes(term) ||
 					msg.message.toLowerCase().includes(term)
 			);
-			this.sortMessages();
 		}
+		this.sortMessages();
 	}
 
 	editModal(msg) {

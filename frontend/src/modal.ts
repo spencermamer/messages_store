@@ -40,6 +40,9 @@ export class MessagesStoreModal extends LitElement {
 		if (e.key === "Escape") {
 			this.closeModal();
 		}
+		if (e.ctrlKey && e.altKey && e.key.toLowerCase() === "s") {
+			this.handleSave();
+		}
 	};
 
 	handleAddMessage() {
