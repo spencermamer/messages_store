@@ -1,9 +1,9 @@
 import voluptuous as vol
+from ..const import TAG_SEPARATOR_MESSAGE
 
 def validate_no_pipe_char(value):
-    """Validate that the message does not contain the '|' character."""
-    if '|' in value:
-        raise vol.Invalid("The '|' character is not allowed in messages.")
+    if TAG_SEPARATOR_MESSAGE in value:
+        raise vol.Invalid(f"The '{TAG_SEPARATOR_MESSAGE}' character is not allowed in messages.")
     return value
 
 SLUG_SCHEMA = vol.All(vol.Match(r'^[a-zA-Z0-9_]+$'), vol.Length(min=1, max=150))

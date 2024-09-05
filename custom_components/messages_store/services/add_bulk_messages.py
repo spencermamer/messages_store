@@ -3,6 +3,7 @@ import logging
 from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse
 from .helpers import log_error
 from ..repository import MessagesStore
+from ..const import TAG_SEPARATOR_MESSAGE
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -27,7 +28,7 @@ async def add_bulk_messages(hass: HomeAssistant, repository: MessagesStore, call
                 continue
 
             if isinstance(messages, list):
-                message = "| ".join(messages)  
+                message = f"{TAG_SEPARATOR_MESSAGE} ".join(messages)  
             else:
                 message = str(messages)
 
