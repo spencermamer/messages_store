@@ -2,6 +2,7 @@ import logging
 from homeassistant.core import HomeAssistant, ServiceCall, ServiceResponse
 from .helpers import log_error
 from ..repository import MessagesStore
+from ..const import TAG_SEPARATOR_MESSAGE
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -12,7 +13,7 @@ async def edit_message(hass: HomeAssistant, repository: MessagesStore, call: Ser
         new_message = call.data.get('message')
 
         if isinstance(new_message, list):
-            new_message = "| ".join(new_message)
+            new_message = f"{TAG_SEPARATOR_MESSAGE} ".join(new_message)
 
         updated = await hass.async_add_executor_job(repository.update_message, slug, new_message)
 

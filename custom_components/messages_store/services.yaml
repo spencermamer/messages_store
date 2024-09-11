@@ -64,6 +64,20 @@ get_messages:
           filter: random
         - slug: "arrived_home"
         - slug: "alarm_trigged"
+    grouped:
+      name: "Grouped"
+      description: "If true, messages will be grouped by slug in the response."
+      required: false
+      selector:
+        boolean: {}
+      example: true
+    force_random:
+      name: "Force Random"
+      description: "Forces random selection of messages for all slugs."
+      required: false
+      selector:
+        boolean: {}
+      example: false
 
 edit_message:
   name: "Edit Message"
