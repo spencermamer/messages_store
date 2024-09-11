@@ -260,7 +260,7 @@ export class MessagesStore extends LitElement {
 					? html`
 							<messages-store-modal
 								.hass=${this.hass}
-								.messages=${this.messages}
+								.messages=${this.allMessages}
 								.initialSlug=${this.message.slug}
 								.initialMessages=${this.message.originalMessage}
 								@save=${this.saveMessage}

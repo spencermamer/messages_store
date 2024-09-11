@@ -245,7 +245,7 @@ const rt=t=>e=>"function"==typeof e?((t,e)=>(customElements.define(t,e),e))(t,e)
 				${this.isModalOpen?L`
 							<messages-store-modal
 								.hass=${this.hass}
-								.messages=${this.messages}
+								.messages=${this.allMessages}
 								.initialSlug=${this.message.slug}
 								.initialMessages=${this.message.originalMessage}
 								@save=${this.saveMessage}
