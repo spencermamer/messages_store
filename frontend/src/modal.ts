@@ -40,6 +40,9 @@ export class MessagesStoreModal extends LitElement {
 		if (e.key === "Escape") {
 			this.closeModal();
 		}
+		if (e.ctrlKey && e.altKey && e.key.toLowerCase() === "s") {
+			this.handleSave();
+		}
 	};
 
 	handleAddMessage() {
@@ -106,15 +109,38 @@ export class MessagesStoreModal extends LitElement {
 
 				return selectedMessage;
 			})
-			.replace(/\(state:([^)]+)\)/g, (match, entityId) => {
+			.replace(/\(state:([a-zA-Z0-9_\.]+)(?:\((.*?)\))?\)/g, (match, entityId, filters) => {
 				const stateObj = this.hass.states[entityId];
 				if (!stateObj) {
 					return match;
 				}
-				const stateValue = stateObj.state;
+	
+				let stateValue = stateObj.state;
 				const unit = stateObj.attributes.unit_of_measurement || "";
-				const result = `${stateValue} ${unit}`.trim();
-				return result;
+				let finalValue = stateValue;
+
+				const isNumeric = !isNaN(parseFloat(stateValue)) && isFinite(stateValue);
+				filters = filters ? filters.split(',').map(f => f.trim()) : [];
+
+				if (isNumeric) {
+					stateValue = parseFloat(stateValue);
+
+					if (filters.includes('round')) {
+						finalValue = Math.round(stateValue);
+					} else {
+						const roundFilter = filters.find(f => f.startsWith('round'));
+						if (roundFilter) {
+							const decimals = parseInt(roundFilter.replace('round', ''), 10);
+							finalValue = stateValue.toFixed(decimals);
+						}
+					}
+				}
+
+				if (filters.includes('unit') && unit) {
+					finalValue = `${finalValue} ${unit}`;
+				}
+
+				return finalValue;
 			});
 	}
 
