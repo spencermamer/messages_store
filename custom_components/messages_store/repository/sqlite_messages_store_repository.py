@@ -13,15 +13,24 @@ class SQLiteMessageStoreRepository(MessagesStore):
                 CREATE TABLE IF NOT EXISTS messages_store (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     slug TEXT NOT NULL,
-                    message TEXT NOT NULL
+                    message TEXT NOT NULL,
+                    priority INTEGER NOT NULL DEFAULT 3,
+                    audience TEXT NOT NULL DEFAULT 'all',
+                    expiration_date TEXT
                 )
+            ''')
+            c.execute('''
+                CREATE INDEX IF NOT EXISTS idx_priority ON messages_store (priority)
+            ''')
+            c.execute('''
+                CREATE INDEX IF NOT EXISTS idx_audience ON messages_store (audience)
             ''')
             conn.commit()
 
-    def insert_message(self, slug: str, message: str):
+    def insert_message(self, slug: str, message: str, priority: int = 3, audience: str = 'all', expiration_date: Optional[str] = None):
         with sqlite3.connect(self.db_path) as conn:
             c = conn.cursor()
-            c.execute("INSERT INTO messages_store (slug, message) VALUES (?, ?)", (slug, message))
+            c.execute("INSERT INTO messages_store (slug, message, priority, audience, expiration_date) VALUES (?, ?, ?, ?, ?)", (slug, message, priority, audience, expiration_date))
             conn.commit()
 
     def slug_exists(self, slug: str) -> bool:
