@@ -12,6 +12,10 @@ MESSAGE_SCHEMA = vol.Any(
     [vol.All(str, vol.Length(min=1, max=2000), validate_no_pipe_char)]  
 )
 
+PRIORITY_SCHEMA = vol.All(vol.Coerce(int), vol.Range(min=1, max=5))
+AUDIENCE_SCHEMA = vol.Any("home", "not home", "all")
+EXPIRATION_DATE_SCHEMA = vol.Any(vol.Date(), vol.Datetime())
+
 FILTER_ITEM_SCHEMA = vol.Schema({
     vol.Required('slug'): SLUG_SCHEMA,
     vol.Optional('replace', default=[]): [vol.Any(str, int, float)],
@@ -21,6 +25,9 @@ FILTER_ITEM_SCHEMA = vol.Schema({
 ADD_EDIT_SCHEMA = vol.Schema({
     vol.Required('slug'): SLUG_SCHEMA,
     vol.Required('message'): MESSAGE_SCHEMA,
+    vol.Optional('priority', default=3): PRIORITY_SCHEMA,
+    vol.Optional('audience', default="all"): AUDIENCE_SCHEMA,
+    vol.Optional('expiration_date'): EXPIRATION_DATE_SCHEMA,
 })
 
 DELETE_SCHEMA = vol.Schema({

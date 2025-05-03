@@ -10,7 +10,8 @@ from .services import (
     get_messages,
     edit_message,
     delete_message,
-    add_bulk_messages
+    add_bulk_messages,
+    notify
 )
 from .services.schemas import (
     ADD_EDIT_SCHEMA,
@@ -89,6 +90,14 @@ async def setup_services(hass: HomeAssistant, entry: config_entries.ConfigEntry)
             'add_bulk_messages',
             wrap_service(add_bulk_messages),
             schema=ADD_BULK_MESSAGES_SCHEMA,
+            supports_response=SupportsResponse.ONLY
+        )
+
+        hass.services.async_register(
+            DOMAIN,
+            'notify',
+            wrap_service(notify),
+            schema=ADD_EDIT_SCHEMA,
             supports_response=SupportsResponse.ONLY
         )
 
