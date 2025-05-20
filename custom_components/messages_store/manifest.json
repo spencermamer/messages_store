@@ -1,6 +1,6 @@
 {
     "domain": "messages_store",
-    "name": "Messages Store",
+    "name": "Notices Store",
     "codeowners": ["@FernandoZueet"],
     "config_flow": true,
     "dependencies": ["http"],

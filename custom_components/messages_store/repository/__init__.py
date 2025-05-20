@@ -1,7 +1,7 @@
-from .messages_store import MessagesStore
-from .sqlite_messages_store_repository import SQLiteMessageStoreRepository
+from .notices_store import NoticesStore
+from .sqlite_notices_store_repository import SQLiteNoticeStoreRepository
 
 __all__ = [
-    "MessagesStore",
-    "SQLiteMessageStoreRepository"
+    "NoticesStore",
+    "SQLiteNoticeStoreRepository"
 ]

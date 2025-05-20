@@ -2,9 +2,9 @@ import "./styles.css";
 import { LitElement, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
-@customElement("messages-store-notification")
-export class MessagesStoreNotification extends LitElement {
-	@property({ type: String }) message = "";
+@customElement("notices-store-notification") // Renamed component
+export class NoticesStoreNotification extends LitElement { // Renamed class
+	@property({ type: String }) message = ""; // Property name kept as 'message' as it's generic notification text
 	@property({ type: String }) type = "success";
 
 	closeNotification() {
