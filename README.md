@@ -312,3 +312,59 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 ## Contributing
 
 Feel free to contribute to this project by submitting issues or pull requests. Please ensure that your contributions follow the established coding guidelines and are thoroughly tested.
+
+## Development Environment Setup
+
+This repository includes a pre-configured development container (devcontainer) for use with GitHub Codespaces or VS Code Remote - Containers. This provides a consistent and fully set up environment for developing and testing this custom component.
+
+### Using GitHub Codespaces
+
+1.  Navigate to the main page of this repository on GitHub.
+2.  Click the green "Code" button.
+3.  Select the "Codespaces" tab.
+4.  Click "Create codespace on main" (or your current branch). GitHub will then set up the Codespace, which may take a few minutes.
+5.  Once ready, VS Code will open in your browser, or you can open it in your local VS Code application. The environment will be automatically configured based on the `.devcontainer/devcontainer.json` file.
+
+### Using VS Code Remote - Containers (Local)
+
+1.  **Prerequisites**:
+    *   [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running.
+    *   [Visual Studio Code](https://code.visualstudio.com/) installed.
+    *   The [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) installed in VS Code.
+2.  **Clone the repository**:
+    ```bash
+    git clone https://github.com/your-username/your-repository-name.git # Replace with actual repo URL
+    cd your-repository-name # Replace with actual repo directory
+    ```
+3.  **Open in Container**:
+    *   Open VS Code.
+    *   Open the Command Palette (Ctrl+Shift+P or Cmd+Shift+P).
+    *   Type and select: `Dev Containers: Reopen in Container`.
+    *   VS Code will build the dev container image (if not already built) and start the container. This might take several minutes on the first run.
+
+### What's Included?
+
+The development container comes with:
+
+*   Python 3.11+
+*   Home Assistant Core (installed via `requirements_dev.txt`)
+*   `uv` for fast package management
+*   Pre-configured VS Code extensions for Python development (Ruff, Pylint, Pylance), YAML, Prettier, and GitHub Copilot.
+*   Linters and formatters set up (Ruff, Prettier).
+*   A Home Assistant `config` directory ready for use.
+*   The custom component from this repository mounted into the `/config/custom_components` directory of the Home Assistant instance within the container.
+
+### Running Home Assistant
+
+*   Once the devcontainer is up and running, Home Assistant should start automatically as part of the `postStartCommand`.
+*   If you need to start it manually or if it was stopped, open a terminal in VS Code (Terminal > New Terminal) and run:
+    ```bash
+    hass -c config
+    ```
+*   You can access the Home Assistant web interface at [http://localhost:8123](http://localhost:8123) in your browser.
+
+### Development Workflow
+
+1.  Make your code changes in the `custom_components/messages_store/` directory.
+2.  The changes will be reflected live in the running Home Assistant instance due to the bind mount. You may need to restart Home Assistant (via the Developer Tools > Server Management in HA UI, or by restarting the `hass` command) for some changes to take effect.
+3.  Use the integrated terminal for Git commands, running tests, etc.

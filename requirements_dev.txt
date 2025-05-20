@@ -1,0 +1,14 @@
+# Core development dependencies
+homeassistant~=2024.1  # Or specify a more recent version if needed
+uv>=0.1.0
+
+# Linters, formatters, and testing tools
+ruff==0.4.4 # Or a newer compatible version
+pylint
+prettier
+pytest
+pytest-cov
+
+# For HASS development
+voluptuous-serialize
+# Add any other specific development dependencies for your custom component below
