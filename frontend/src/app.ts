@@ -7,20 +7,45 @@ import "./notification";
 
 declare global {
 	interface HTMLElementTagNameMap {
-		"messages-store": MessagesStore;
+		"notices-store": NoticesStore; // Renamed tag
 	}
 }
 
-@customElement("messages-store")
-export class MessagesStore extends LitElement {
-	@state() allMessages: Array<{ slug: string; message: string; originalMessage: string[] }> = [];
-	@state() messages: Array<{ slug: string; message: string; originalMessage: string[] }> = [];
-	@state() message = { slug: "", message: "", originalMessage: [""] };
+@customElement("notices-store") // Renamed component
+export class NoticesStore extends LitElement { // Renamed class
+	// Assuming originalMessage becomes originalNoticeContent or similar for the object structure
+	@state() allNotices: Array<{ 
+		slug: string; 
+		notice: string; 
+		originalNoticeContent: string[]; 
+		priority?: number; 
+		audience?: string; 
+		expiration_date?: string | null; 
+		acknowledged?: boolean | number; 
+	}> = [];
+	@state() notices: Array<{ 
+		slug: string; 
+		notice: string; 
+		originalNoticeContent: string[]; 
+		priority?: number; 
+		audience?: string; 
+		expiration_date?: string | null; 
+		acknowledged?: boolean | number; 
+	}> = [];
+	@state() notice: { 
+		slug: string; 
+		notice: string; 
+		originalNoticeContent: string[]; 
+		priority?: number; 
+		audience?: string; 
+		expiration_date?: string | null; 
+		acknowledged?: boolean | number; 
+	} = { slug: "", notice: "", originalNoticeContent: [""], priority: 3, audience: 'all', expiration_date: null, acknowledged: 0 };
 	@state() isModalOpen = false;
-	@state() notification: { message: string; type: string } | null = null;
+	@state() notification: { message: string; type: string } | null = null; // 'message' here is generic notification text, not an entity
 	@state() searchTerm = "";
 	@state() sortOrder: "asc" | "desc" = "asc";
-	@state() groupMessages = true;
+	@state() groupNotices = true; // Renamed from groupMessages
 
 	@property({ type: Object }) hass;
 
@@ -31,7 +56,7 @@ export class MessagesStore extends LitElement {
 	async connectedCallback() {
 		super.connectedCallback();
 		this.loadConfig();
-		await this.loadMessages();
+		await this.loadNotices(); // Renamed from loadMessages
 		document.addEventListener("keydown", this.handleKeyDown);
 	}
 
@@ -47,55 +72,112 @@ export class MessagesStore extends LitElement {
 	};
 
 	loadConfig() {
-		const config = localStorage.getItem("messages-store-config");
+		const config = localStorage.getItem("notices-store-config"); // Renamed item
 		if (config) {
-			this.groupMessages = JSON.parse(config).groupMessages;
+			this.groupNotices = JSON.parse(config).groupNotices; // Renamed property
 		}
 	}
 
 	saveConfig() {
 		localStorage.setItem(
-			"messages-store-config",
-			JSON.stringify({ groupMessages: this.groupMessages })
+			"notices-store-config", // Renamed item
+			JSON.stringify({ groupNotices: this.groupNotices }) // Renamed property
 		);
 	}
 
-	async loadMessages() {
-		const response = await this.callService("messages_store", "get_messages");
-		this.allMessages = this.processMessages(response?.data);
-		this.filterMessages();
+	async loadNotices() { // Renamed from loadMessages
+		// Service name updated from get_messages to get_notices
+		const response = await this.callService("messages_store", "get_notices"); 
+		this.allNotices = this.processNotices(response?.data); // Renamed from allMessages and processMessages
+		this.filterNotices(); // Renamed from filterMessages
 	}
 
-	processMessages(data) {
-		let processedMessages: Array<{ slug: string; message: string; originalMessage: string[] }> = [];
+	processNotices(data) { 
+		let processedNotices: Array<{ 
+			slug: string; 
+			notice: string; 
+			originalNoticeContent: string[]; 
+			priority?: number; 
+			audience?: string; 
+			expiration_date?: string | null; 
+			acknowledged?: boolean | number; 
+		}> = [];
 
 		if (Array.isArray(data)) {
-			data.forEach((msg) => {
-				if (Array.isArray(msg.message)) {
-					if (this.groupMessages) {
-						processedMessages.push({
-							slug: msg.slug,
-							message: msg.message[0],
-							originalMessage: msg.message,
+			data.forEach((item) => { 
+				// The backend now returns individual notices, not grouped, and 'notice' is a string.
+				// 'originalNoticeContent' will be derived if needed, or simply be [item.notice]
+				// For now, assume data items from get_notices are already structured with all fields.
+				// If item.notice is an array (from older data or bulk add format), handle it.
+				let noticeContentForDisplay = "";
+				let originalContentArray: string[] = [];
+
+				if (typeof item.notice === 'string') {
+					noticeContentForDisplay = item.notice;
+					originalContentArray = [item.notice]; // Or split if it contains TAG_SEPARATOR_MESSAGE
+				} else if (Array.isArray(item.notice)) {
+					// This case might be less frequent now if backend returns single string from DB
+					noticeContentForDisplay = item.notice[0] || ""; 
+					originalContentArray = item.notice;
+				}
+				
+				// If grouping is active, we might still only take the first line for display if item.notice was an array.
+				// However, the main purpose of `originalNoticeContent` is for editing.
+				// The backend `get_notices` now returns individual notices with all fields.
+				// The concept of "grouping" here might need re-evaluation based on backend changes.
+				// For now, we'll assume `item.notice` is the primary content string.
+				// And `originalNoticeContent` is for the modal to edit potentially multiple lines.
+				// Let's assume backend now sends item.notice as string and potentially item.originalNoticeContent if different.
+				// Or, if `item.notice` can still be an array from `get_notices` (e.g. for `force_random: false` and multiple items)
+				
+				// Simplified assumption: backend `get_notices` returns each notice object with all its fields.
+				// `item.notice` is the string content. `item.originalNoticeContent` needs to be constructed if not directly provided.
+				// The `processNotices` was originally designed to handle `item.notice` being an array for multi-line messages.
+				// Let's stick to that logic for `originalNoticeContent`.
+				
+				const currentNoticeContent = Array.isArray(item.notice) ? item.notice : [String(item.notice)];
+
+				if (this.groupNotices && Array.isArray(item.notice) && item.notice.length > 0) {
+					processedNotices.push({
+						slug: item.slug,
+						notice: item.notice[0], 
+						originalNoticeContent: item.notice, 
+						priority: item.priority,
+						audience: item.audience,
+						expiration_date: item.expiration_date,
+						acknowledged: item.acknowledged
+					});
+				} else if (!Array.isArray(item.notice)) { // Single string notice from backend
+					processedNotices.push({
+						slug: item.slug,
+						notice: String(item.notice),
+						originalNoticeContent: [String(item.notice)],
+						priority: item.priority,
+						audience: item.audience,
+						expiration_date: item.expiration_date,
+						acknowledged: item.acknowledged
+					});
+				}
+				else { // Ungrouped or single item in array
+					currentNoticeContent.forEach((singleNoticeText) => {
+						processedNotices.push({
+							slug: item.slug,
+							notice: singleNoticeText.trim(),
+							originalNoticeContent: currentNoticeContent,
+							priority: item.priority,
+							audience: item.audience,
+							expiration_date: item.expiration_date,
+							acknowledged: item.acknowledged
 						});
-					} else {
-						msg.message.forEach((message) => {
-							processedMessages.push({
-								slug: msg.slug,
-								message: message.trim(),
-								originalMessage: msg.message,
-							});
-						});
-					}
+					});
 				}
 			});
 		}
-
-		return processedMessages;
+		return processedNotices;
 	}
 
-	sortMessages() {
-		this.messages.sort((a, b) => {
+	sortNotices() { 
+		this.notices.sort((a, b) => { // Renamed from messages
 			const compare = a.slug.localeCompare(b.slug);
 			return this.sortOrder === "asc" ? compare : -compare;
 		});
@@ -103,13 +185,13 @@ export class MessagesStore extends LitElement {
 
 	toggleSortOrder() {
 		this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
-		this.sortMessages();
+		this.sortNotices(); // Renamed from sortMessages
 	}
 
-	toggleGroupMessages() {
-		this.groupMessages = !this.groupMessages;
+	toggleGroupNotices() { // Renamed from toggleGroupMessages
+		this.groupNotices = !this.groupNotices; // Renamed from groupMessages
 		this.saveConfig();
-		this.loadMessages();
+		this.loadNotices(); // Renamed from loadMessages
 	}
 
 	async callService(domain, service, data = {}, target = {}) {
@@ -128,37 +210,45 @@ export class MessagesStore extends LitElement {
 			});
 			return response.response;
 		} catch (error: any) {
-			this.showNotification(error.message, "error");
+			this.showNotification(error.message, "error"); // 'message' here is generic error text
 		}
 	}
 
 	handleSearch(e) {
 		this.searchTerm = e.target.value;
-		this.filterMessages();
+		this.filterNotices(); // Renamed from filterMessages
 	}
 
-	filterMessages() {
+	filterNotices() { // Renamed from filterMessages
 		const term = this.searchTerm.toLowerCase();
 		if (!term) {
-			this.messages = [...this.allMessages];
+			this.notices = [...this.allNotices]; // Renamed from messages and allMessages
 		} else {
-			this.messages = this.allMessages.filter(
-				(msg: { slug: string; message: string }) =>
-					msg.slug.toLowerCase().includes(term) ||
-					msg.message.toLowerCase().includes(term)
+			this.notices = this.allNotices.filter( // Renamed from messages and allMessages
+				(item: { slug: string; notice: string }) => // Renamed msg to item, notice to notice
+					item.slug.toLowerCase().includes(term) ||
+					item.notice.toLowerCase().includes(term) // Renamed notice to notice
 			);
 		}
-		this.sortMessages();
+		this.sortNotices(); // Renamed from sortMessages
 	}
 
-	editModal(msg) {
-		msg = msg.detail;
-		this.message = msg;
+	editModal(item) { // Renamed msg to item
+		item = item.detail;
+		this.notice = item; // Renamed from message
 		this.isModalOpen = true;
 	}
 
 	addModal() {
-		this.message = { slug: "", message: "", originalMessage: [""] };
+		this.notice = { 
+			slug: "", 
+			notice: "", 
+			originalNoticeContent: [""], 
+			priority: 3, 
+			audience: 'all', 
+			expiration_date: null, 
+			acknowledged: 0 // Or false, depending on how you want to handle it (0 for DB)
+		};
 		this.isModalOpen = true;
 	}
 
@@ -166,42 +256,64 @@ export class MessagesStore extends LitElement {
 		this.isModalOpen = false;
 	}
 
-	async saveMessage(e) {
-		const { slug, messages, service } = e.detail;
-		const response = await this.callService("messages_store", service, {
+	async saveNotice(e) { // Renamed from saveMessage
+		const { slug, notice, service, priority, audience, expiration_date } = e.detail; 
+		const response = await this.callService("messages_store", service, { 
 			slug,
-			message: messages,
+			notice: notice, 
+			priority,
+			audience,
+			expiration_date 
 		});
 		this.showNotification(
-			response.message,
+			response.message, 
 			response.status ? "success" : "error"
 		);
 		if (response.status) {
 			this.closeModal();
-			await this.loadMessages();
-			this.filterMessages();
+			await this.loadNotices(); // Renamed from loadMessages
+			this.filterNotices(); // Renamed from filterMessages
 		}
 	}
 
-	async deleteMessage(e) {
+	async deleteNotice(e) { // Renamed from deleteMessage
 		const slug = e.detail;
 		const response = await this.callService(
-			"messages_store",
-			"delete_message",
+			"messages_store", // domain kept as messages_store
+			"delete_notice", // Service name updated
 			{ slug }
 		);
+		this.showNotification(
+			response.message, // 'message' here is generic response text
+			response.status ? "success" : "error"
+		);
+		if (response.status) {
+			await this.loadNotices(); // Renamed from loadMessages
+			this.filterNotices(); // Renamed from filterMessages
+		}
+	}
+
+	async handleAcknowledgeNotice(e) {
+		const { slug, acknowledged } = e.detail;
+		const response = await this.callService(
+			"messages_store", 
+			"acknowledge_notice",
+			{ slug, acknowledged }
+		);
+
 		this.showNotification(
 			response.message,
 			response.status ? "success" : "error"
 		);
+
 		if (response.status) {
-			await this.loadMessages();
-			this.filterMessages();
+			await this.loadNotices();
+			// No need to call filterNotices() separately if loadNotices() already calls it.
 		}
 	}
 
-	showNotification(message, type) {
-		this.notification = { message, type };
+	showNotification(notificationText, type) { // Renamed message to notificationText for clarity
+		this.notification = { message: notificationText, type }; // 'message' property of notification object
 		setTimeout(() => (this.notification = null), 10000);
 	}
 
@@ -209,14 +321,14 @@ export class MessagesStore extends LitElement {
 		return html`
 			<div class="min-h-screen p-4 dark:bg-zinc-900 dark:text-white">
 				<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
-					<h1 class="text-2xl font-bold mb-4 sm:mb-0">Messages Store</h1>
+					<h1 class="text-2xl font-bold mb-4 sm:mb-0">Notices Store</h1> 
 					<div class="flex flex-col sm:flex-row sm:items-center">
 						<label class="inline-flex items-center mb-4 sm:mb-0 sm:mr-4">
 							<input
 								type="checkbox"
 								class="form-checkbox"
-								.checked=${this.groupMessages}
-								@click=${this.toggleGroupMessages}
+								.checked=${this.groupNotices} 
+								@click=${this.toggleGroupNotices} 
 							/>
 							<span class="ml-2">Group slugs</span>
 						</label>
@@ -224,57 +336,62 @@ export class MessagesStore extends LitElement {
 							class="bg-zinc-500 text-white font-bold px-4 py-2 rounded"
 							@click=${this.addModal}
 						>
-							Add Message
+							Add Notice 
 						</button>
 					</div>
 				</div>
 				<input
 					class="w-full text-sm outline-none border-b-2 border-zinc-600 bg-zinc-800 focus:border-zinc-500 focus:outline-none p-2 text-white mb-4"
 					type="text"
-					placeholder="Search messages..."
+					placeholder="Search notices..." 
 					@input=${this.handleSearch}
 				/>
 
 				<div class="overflow-x-auto">
-					${this.messages.length > 0
+					${this.notices.length > 0 
 						? html`
-								<messages-store-list
-									.messages=${this.messages}
+								<notices-store-list 
+									.notices=${this.notices} 
 									@edit=${this.editModal}
-									@delete=${this.deleteMessage}
-									@save=${this.saveMessage}
+									@delete=${this.deleteNotice} 
+									@save=${this.saveNotice} 
 									@sort=${this.toggleSortOrder}
+									@acknowledge-toggle=${this.handleAcknowledgeNotice}
 									.sortOrder=${this.sortOrder}
-								></messages-store-list>
+								></notices-store-list>
 								<div class="mt-4 text-sm text-gray-500">
-									Total Messages: ${this.messages.length}
+									Total Notices: ${this.notices.length} 
 								</div>
 							`
 						: html`
 								<div class="mt-4 text-sm text-gray-500">
-									No messages found.
+									No notices found. 
 								</div>
 							`}
 				</div>
 				${this.isModalOpen
 					? html`
-							<messages-store-modal
+							<notices-store-modal 
 								.hass=${this.hass}
-								.messages=${this.allMessages}
-								.initialSlug=${this.message.slug}
-								.initialMessages=${this.message.originalMessage}
-								@save=${this.saveMessage}
+								.allNotices=${this.allNotices} 
+								.initialSlug=${this.notice.slug} 
+								.initialNoticeContents=${this.notice.originalNoticeContent}
+								.initialPriority=${this.notice.priority}
+								.initialAudience=${this.notice.audience}
+								.initialExpirationDate=${this.notice.expiration_date}
+								.initialAcknowledged=${this.notice.acknowledged}
+								@save=${this.saveNotice} 
 								@close=${this.closeModal}
-							></messages-store-modal>
+							></notices-store-modal>
 						`
 					: ""}
 				${this.notification
 					? html`
-							<messages-store-notification
-								.message=${this.notification.message}
+							<notices-store-notification 
+								.message=${this.notification.message} 
 								.type=${this.notification.type}
 								@close=${() => (this.notification = null)}
-							></messages-store-notification>
+							></notices-store-notification>
 						`
 					: ""}
 			</div>

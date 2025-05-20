@@ -1,43 +1,71 @@
-add_message:
-  name: "Add Message"
-  description: "Adds a new message."
+add_notice:
+  name: "Add Notice"
+  description: "Adds a new notice."
   fields:
     slug:
       name: "Identifier"
-      description: "Unique identifier for the message, using only alphanumeric characters and underscores."
+      description: "Unique identifier for the notice, using only alphanumeric characters and underscores."
       required: true
       selector:
         text: {}
-      example: "welcome_message"
-    message:
-      name: "Message"
-      description: "The content of the message. It can be a string or a list of strings."
+      example: "welcome_notice"
+    notice:
+      name: "Notice"
+      description: "The content of the notice. It can be a string or a list of strings."
       required: true
       selector:
         object: {}
       example: "Hello, welcome home!"
+    priority:
+      name: Priority
+      description: "Priority of the notice (1-5, default 3)."
+      required: false
+      selector:
+        number:
+          min: 1
+          max: 5
+          mode: slider
+      example: 2
+    audience:
+      name: Audience
+      description: "Target audience for the notice (e.g., 'all', 'home', 'not home', default 'all')."
+      required: false
+      selector:
+        select:
+          options:
+            - "all"
+            - "home"
+            - "not home"
+      example: "home"
+    expiration_date:
+      name: Expiration Date
+      description: "Date/time when the notice expires (YYYY-MM-DD or YYYY-MM-DD HH:MM:SS). Optional."
+      required: false
+      selector:
+        text: {}
+      example: "2024-12-31"
 
-get_message:
-  name: "Get Message"
-  description: "Retrieves a message by its identifier."
+get_notice:
+  name: "Get Notice"
+  description: "Retrieves a notice by its identifier."
   fields:
     slug:
       name: "Identifier"
-      description: "Unique identifier for the message."
+      description: "Unique identifier for the notice."
       required: true
       selector:
         text: {}
-      example: "welcome_message"
+      example: "welcome_notice"
     replace:
       name: "Replacements"
-      description: "List of values to replace placeholders in the message."
+      description: "List of values to replace placeholders in the notice."
       required: false
       selector:
         object: {}
       example: ['John', '25°C']
     filter:
       name: "Filter"
-      description: "Optional filter to modify the retrieval of the message. Use 'random' to get a random message from a list."
+      description: "Optional filter to modify the retrieval of the notice. Use 'random' to get a random notice from a list."
       required: false
       selector:
         select:
@@ -47,18 +75,18 @@ get_message:
               value: random
       example: "random"
 
-get_messages:
-  name: "Get Multiple Messages"
-  description: "Retrieves multiple messages based on an optional filter."
+get_notices:
+  name: "Get Multiple Notices"
+  description: "Retrieves multiple notices based on an optional filter."
   fields:
     filter:
       name: "Filter"
-      description: "Optional filter to search for specific messages with optional replacements."
+      description: "Optional filter to search for specific notices with optional replacements."
       required: false
       selector:
         object: {}
       example: 
-        - slug: "welcome_message"
+        - slug: "welcome_notice"
           replace: 
             - "10%"
           filter: random
@@ -66,57 +94,85 @@ get_messages:
         - slug: "alarm_trigged"
     grouped:
       name: "Grouped"
-      description: "If true, messages will be grouped by slug in the response."
+      description: "If true, notices will be grouped by slug in the response."
       required: false
       selector:
         boolean: {}
       example: true
     force_random:
       name: "Force Random"
-      description: "Forces random selection of messages for all slugs."
+      description: "Forces random selection of notices for all slugs."
       required: false
       selector:
         boolean: {}
       example: false
 
-edit_message:
-  name: "Edit Message"
-  description: "Edits an existing message."
+edit_notice:
+  name: "Edit Notice"
+  description: "Edits an existing notice."
   fields:
     slug:
       name: "Identifier"
-      description: "Unique identifier for the message to be edited."
+      description: "Unique identifier for the notice to be edited."
       required: true
       selector:
         text: {}
-      example: "welcome_message"
-    message:
-      name: "New Message"
-      description: "New content of the message. It can be a string or a list of strings."
-      required: true
+      example: "welcome_notice"
+    notice:
+      name: "New Notice Content"
+      description: "New content of the notice. If not provided, current content is kept. It can be a string or a list of strings."
+      required: false
       selector:
         object: {}
       example: "Hello again, welcome back!"
+    priority:
+      name: Priority
+      description: "Priority of the notice (1-5). If not provided, current priority is kept."
+      required: false
+      selector:
+        number:
+          min: 1
+          max: 5
+          mode: slider
+      example: 2
+    audience:
+      name: Audience
+      description: "Target audience for the notice (e.g., 'all', 'home', 'not home'). If not provided, current audience is kept."
+      required: false
+      selector:
+        select:
+          options:
+            - "all"
+            - "home"
+            - "not home"
+      example: "home"
+    expiration_date:
+      name: Expiration Date
+      description: "Date/time when the notice expires (YYYY-MM-DD or YYYY-MM-DD HH:MM:SS). If not provided, current expiration date is kept."
+      required: false
+      selector:
+        text: {}
+      example: "2024-12-31"
 
-delete_message:
-  name: "Delete Message"
-  description: "Deletes a message by its identifier."
+delete_notice:
+  name: "Delete Notice"
+  description: "Deletes a notice by its identifier."
   fields:
     slug:
       name: "Identifier"
-      description: "Unique identifier for the message to be deleted."
+      description: "Unique identifier for the notice to be deleted."
       required: true
       selector:
         text: {}
-      example: "welcome_message"
+      example: "welcome_notice"
 
-add_bulk_messages:
-  name: "Add Bulk Messages"
-  description: "Adds multiple messages at once."
+add_bulk_notices:
+  name: "Add Bulk Notices"
+  description: "Adds multiple notices at once."
   fields:
     data:
-      name: "Messages Data"
-      description: "A dictionary where each key is a slug and the corresponding value is a list of messages."
+      name: "Notices Data"
+      description: "A dictionary where each key is a slug and the corresponding value is a list of notices."
       required: true
       selector:
         object: {}
@@ -125,3 +181,22 @@ add_bulk_messages:
           "morning_greeting": ["Good morning!", "Have a great day!"],
           "evening_greeting": ["Good evening!", "Hope you had a great day!"]
         }
+
+acknowledge_notice:
+  name: "Acknowledge Notice"
+  description: "Sets the acknowledgement status of a notice."
+  fields:
+    slug:
+      name: "Identifier"
+      description: "Unique identifier for the notice."
+      required: true
+      selector:
+        text: {}
+      example: "system_alert_001"
+    acknowledged:
+      name: "Acknowledged"
+      description: "The acknowledgement status to set (true or false)."
+      required: true
+      selector:
+        boolean: {}
+      example: true

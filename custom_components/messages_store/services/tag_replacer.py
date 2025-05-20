@@ -2,7 +2,7 @@ import random
 import re
 from ..const import TAG_SEPARATOR_MESSAGE
 
-def replace_slugs(message, slug, repository):
+def replace_slugs(notice_content, slug, repository):
     slug_pattern = re.compile(r'\(slug:(.+?)\)')
     processed_slugs = set()
 
@@ -12,16 +12,16 @@ def replace_slugs(message, slug, repository):
         if slug_name == slug or slug_name in processed_slugs:
             return match.group(0)
         
-        replacement_message = repository.retrieve_message(slug_name)
-        if replacement_message and not slug_pattern.search(replacement_message):
-            replacement_list = [msg.strip() for msg in replacement_message.split(TAG_SEPARATOR_MESSAGE)]
+        replacement_notice = repository.retrieve_notice(slug_name)
+        if replacement_notice and not slug_pattern.search(replacement_notice):
+            replacement_list = [msg.strip() for msg in replacement_notice.split(TAG_SEPARATOR_MESSAGE)]
             return random.choice(replacement_list) if len(replacement_list) > 1 else replacement_list[0]
         else:
             return match.group(0)
 
-    return slug_pattern.sub(replace, message)
+    return slug_pattern.sub(replace, notice_content)
 
-def replace_states(message, hass):
+def replace_states(notice_content, hass):
     state_pattern = re.compile(r'\(state:(.+?)(\((.*?)\))?\)')
 
     def replace(match):
@@ -59,21 +59,21 @@ def replace_states(message, hass):
 
         return match.group(0)
 
-    return state_pattern.sub(replace, message)
+    return state_pattern.sub(replace, notice_content)
 
 
-def replace_placeholders(message_list, replace_list):
-    for i in range(len(message_list)):
+def replace_placeholders(notice_list, replace_list):
+    for i in range(len(notice_list)):
         for value in replace_list:
-            message_list[i] = message_list[i].replace('%s', str(value), 1)
-    return message_list
+            notice_list[i] = notice_list[i].replace('%s', str(value), 1)
+    return notice_list
 
-def replace_all(hass, repository, message, slug, replace_list):
-    message = replace_slugs(message, slug, repository)
-    message = replace_states(message, hass)
+def replace_all(hass, repository, notice_content, slug, replace_list):
+    notice_content = replace_slugs(notice_content, slug, repository)
+    notice_content = replace_states(notice_content, hass)
     
-    message_list = [msg.strip() for msg in message.split(TAG_SEPARATOR_MESSAGE)]
+    notice_list = [msg.strip() for msg in notice_content.split(TAG_SEPARATOR_MESSAGE)]
 
-    message_list = replace_placeholders(message_list, replace_list)
+    notice_list = replace_placeholders(notice_list, replace_list)
 
-    return message_list
+    return notice_list
