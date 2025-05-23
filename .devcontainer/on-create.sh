@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 echo "on-create.sh script started"
 
 # Ensure script/setup is executable
