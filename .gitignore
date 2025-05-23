@@ -1,1 +1,37 @@
-__pycache__
+# Python virtual environment
+venv/
+.venv/
+
+# Home Assistant configuration directory
+config/
+
+# VSCode user settings
+.vscode/settings.json
+!.vscode/settings.default.json
+# (allow settings.default.json, but ignore user's specific settings.json)
+
+# Python caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+wheels/
+
+# Coverage reports
+.coverage
+coverage.xml
+htmlcov/
+
+# Test reports
+.pytest_cache/
+junit/
+
+# IDE specific files
+.idea/
+*.swp
+*.swo

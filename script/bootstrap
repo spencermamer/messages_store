@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+# Resolve all dependencies that the application requires to run.
+
+# Stop on errors
+set -e
+
+# Get the directory of the script
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+# Navigate to the root of the repository
+cd "$SCRIPT_DIR/.."
+
+echo "Starting script/bootstrap..."
+echo "Current working directory: $(pwd)"
+
+# Ensure virtual environment is active
+if [ -z "$VIRTUAL_ENV" ]; then
+  if [ -d "venv" ]; then
+    echo "Activating virtual environment..."
+    source venv/bin/activate
+  else
+    echo "Error: Virtual environment not found. Please run script/setup first."
+    exit 1
+  fi
+fi
+
+echo "Installing/updating core development dependencies (wheel, colorlog, awesomeversion)..."
+uv pip install wheel colorlog awesomeversion --upgrade
+
+# Check for requirements_dev.txt and install if it exists
+REQUIREMENTS_DEV_FILE="requirements_dev.txt"
+if [ -f "$REQUIREMENTS_DEV_FILE" ]; then
+  echo "Installing dependencies from $REQUIREMENTS_DEV_FILE..."
+  uv pip install -r "$REQUIREMENTS_DEV_FILE"
+else
+  echo "Warning: $REQUIREMENTS_DEV_FILE not found. Skipping."
+fi
+
+# Check for requirements_test.txt and install if it exists (often part of dev requirements)
+REQUIREMENTS_TEST_FILE="requirements_test.txt"
+if [ -f "$REQUIREMENTS_TEST_FILE" ]; then
+  echo "Installing dependencies from $REQUIREMENTS_TEST_FILE..."
+  uv pip install -r "$REQUIREMENTS_TEST_FILE"
+else
+  echo "Warning: $REQUIREMENTS_TEST_FILE not found. Skipping."
+fi
+
+echo "script/bootstrap finished."

@@ -1,0 +1,52 @@
+{
+  "python.defaultInterpreterPath": "/workspaces/${workspaceFolderBasename}/venv/bin/python",
+  "python.pythonPath": "/workspaces/${workspaceFolderBasename}/venv/bin/python",
+  "python.terminal.activateEnvInCurrentTerminal": true,
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": [
+    "tests",
+    "--no-cov"
+  ],
+  "pylint.importStrategy": "fromEnvironment",
+  "pylint.args": [
+    "--disable=C0114,C0115,C0116"
+  ],
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": false,
+  "editor.formatOnType": true,
+  "files.trimTrailingWhitespace": true,
+  "yaml.customTags": [
+    "!input scalar",
+    "!secret scalar",
+    "!include_dir_named scalar",
+    "!include_dir_list scalar",
+    "!include_dir_merge_list scalar",
+    "!include_dir_merge_named scalar"
+  ],
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit",
+      "source.organizeImports": "explicit"
+    }
+  },
+  "[yaml]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "files.trimTrailingWhitespace": false
+  },
+  "json.schemas": [
+    {
+      "fileMatch": [
+        "custom_components/*/manifest.json",
+        "*/custom_components/*/manifest.json"
+      ],
+      "url": "${workspaceFolder}/.devcontainer/schemas/manifest_schema.json"
+    }
+  ]
+}
