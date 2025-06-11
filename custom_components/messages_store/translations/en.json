@@ -2,15 +2,8 @@
     "config": {
         "step": {
             "user": {
-                "title": "Notices Store",
-                "description": "Path to the SQLite database for storing notices. Uses Home Assistant's database if left default.",
-                "data": {
-                    "path": "SQLite database"
-                }
+                "title": "Notices Store"
             }
-        },
-        "error": {
-            "invalid_path": "Please provide a valid path to the SQLite database file."
         },
         "abort": {
             "single_instance_allowed": "Only one instance of this process is allowed to run at a time."
@@ -19,15 +12,8 @@
     "options": {
         "step": {
             "init": {
-                "title": "Notices Store",
-                "description": "Path to the SQLite database for storing notices. Uses Home Assistant's database if left default.",
-                "data": {
-                    "path": "SQLite database"
-                }
+                "title": "Notices Store"
             }
-        },
-        "error": {
-            "invalid_path": "Please provide a valid path to the SQLite database file."
         }
     }
 }
