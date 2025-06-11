@@ -8,7 +8,6 @@ import homeassistant.components.notify as notify_service
 
 from ..const import DOMAIN
 from ..repository import NoticesStore # Using ABC for type hint
-from ..repository.sqlite_notices_store_repository import SQLiteNoticeStoreRepository # For direct check, if needed
 
 
 _LOGGER = logging.getLogger(__name__)

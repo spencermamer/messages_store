@@ -3,7 +3,7 @@ from homeassistant import config_entries
 from homeassistant.core import HomeAssistant, SupportsResponse
 from .view import async_setup_view
 from .services.helpers import log_error
-from .const import DOMAIN, PATH_DB_SQLITE
+from .const import DOMAIN, DB_FILENAME
 from .services import (
     add_notice,
     get_notice,
@@ -38,7 +38,8 @@ async def setup_services(hass: HomeAssistant, entry: config_entries.ConfigEntry)
     try:
         """Helper function to set up services."""
 
-        repository = SQLiteNoticeStoreRepository(PATH_DB_SQLITE)
+        db_path = hass.config.path(DB_FILENAME)
+        repository = SQLiteNoticeStoreRepository(db_path)
         
         if DOMAIN not in hass.data:
             hass.data[DOMAIN] = {}
@@ -132,3 +133,30 @@ async def update_listener(hass: HomeAssistant, config_entry: config_entries.Conf
     _LOGGER.debug("Config entry updated, reloading services...")
 
     await setup_services(hass, config_entry)
+
+
+async def async_unload_entry(hass: HomeAssistant, entry: config_entries.ConfigEntry) -> bool:
+    """Unload Messages Store config entry."""
+    services = [
+        "add_notice",
+        "get_notice",
+        "get_notices",
+        "edit_notice",
+        "delete_notice",
+        "add_bulk_notices",
+        "acknowledge_notice",
+    ]
+
+    for service in services:
+        if hass.services.has_service(DOMAIN, service):
+            hass.services.async_remove(DOMAIN, service)
+
+    try:
+        from homeassistant.components.frontend import async_remove_panel
+
+        async_remove_panel(hass, "messages_store", warn_if_unknown=False)
+    except Exception as err:  # noqa: BLE001
+        _LOGGER.debug("Failed removing panel: %s", err)
+
+    hass.data.pop(DOMAIN, None)
+    return True
