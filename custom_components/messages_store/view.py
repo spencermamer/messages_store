@@ -28,4 +28,3 @@ async def async_setup_view(hass: HomeAssistant):
             "version": VERSION
         },
     )
-    
