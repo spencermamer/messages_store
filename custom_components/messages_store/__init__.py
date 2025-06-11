@@ -3,7 +3,7 @@ from homeassistant import config_entries
 from homeassistant.core import HomeAssistant, SupportsResponse
 from .view import async_setup_view
 from .services.helpers import log_error
-from .const import DOMAIN, DB_FILENAME
+from .const import DOMAIN, DEFAULT_DB_FILENAME
 from .services import (
     add_notice,
     get_notice,
