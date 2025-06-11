@@ -38,7 +38,7 @@ async def setup_services(hass: HomeAssistant, entry: config_entries.ConfigEntry)
     try:
         """Helper function to set up services."""
 
-        db_path = hass.config.path(DB_FILENAME)
+        db_path = hass.config.path(DB_FILENAME) or 'messages_store.db'
         repository = SQLiteNoticeStoreRepository(db_path)
         
         if DOMAIN not in hass.data:
