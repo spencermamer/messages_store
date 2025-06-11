@@ -346,7 +346,7 @@ This repository includes a pre-configured development container (devcontainer) f
 
 The development container comes with:
 
-*   Python 3.11+
+*   Python 3.13+
 *   Home Assistant Core (installed via `requirements_dev.txt`)
 *   `uv` for fast package management
 *   Pre-configured VS Code extensions for Python development (Ruff, Pylint, Pylance), YAML, Prettier, and GitHub Copilot.
