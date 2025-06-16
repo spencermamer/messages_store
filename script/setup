@@ -1,39 +1,34 @@
 #!/usr/bin/env bash
-# Setups the repository.
-
-# Stop on errors
+# Set up the repository.
 set -e
 
 echo "Starting script/setup..."
 
-# Get the directory of the script
-SCRIPT_DIR="$( cd "$( dirname "\${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
-# Navigate to the root of the repository, assuming this script is in a 'script' subdirectory
-cd "\$SCRIPT_DIR/.."
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+cd "$SCRIPT_DIR/.."
 
-echo "Current working directory: \$(pwd)"
+echo "Current working directory: $(pwd)"
 
-# Add default vscode settings if not existing
 SETTINGS_FILE=./.vscode/settings.json
-SETTINGS_DEFAULT_FILE=./.vscode/settings.default.json # Changed from SETTINGS_TEMPLATE_FILE
-if [ -f "\$SETTINGS_DEFAULT_FILE" ]; then
-    if [ ! -f "\$SETTINGS_FILE" ]; then
-        echo "Copying \$SETTINGS_DEFAULT_FILE to \$SETTINGS_FILE."
-        mkdir -p ./.vscode
-        cp "\$SETTINGS_DEFAULT_FILE" "\$SETTINGS_FILE"
-    else
-        echo "\$SETTINGS_FILE already exists. Skipping copy."
-    fi
+SETTINGS_DEFAULT_FILE=./.vscode/settings.default.json
+if [ -f "$SETTINGS_DEFAULT_FILE" ]; then
+  if [ ! -f "$SETTINGS_FILE" ]; then
+    echo "Copying $SETTINGS_DEFAULT_FILE to $SETTINGS_FILE."
+    mkdir -p ./.vscode
+    cp "$SETTINGS_DEFAULT_FILE" "$SETTINGS_FILE"
+  else
+    echo "$SETTINGS_FILE already exists. Skipping copy."
+  fi
 else
-    echo "Warning: \$SETTINGS_DEFAULT_FILE not found. Skipping VS Code settings setup."
+  echo "Warning: $SETTINGS_DEFAULT_FILE not found. Skipping VS Code settings setup."
 fi
 
 echo "Creating config directory if it doesn't exist..."
 mkdir -p config
 
 echo "Setting up Python virtual environment..."
-if [ ! -n "\$VIRTUAL_ENV" ]; then
-  if [ -x "\$(command -v uv)" ]; then
+if [ -z "$VIRTUAL_ENV" ]; then
+  if command -v uv >/dev/null 2>&1; then
     uv venv venv
   else
     python3 -m venv venv
@@ -45,16 +40,14 @@ else
 fi
 
 echo "Ensuring uv is installed..."
-if ! [ -x "\$(command -v uv)" ]; then
+if ! command -v uv >/dev/null 2>&1; then
   python3 -m pip install uv
 fi
 
 echo "Running bootstrap script..."
-# Ensure bootstrap is executable and run it
 chmod +x script/bootstrap
 script/bootstrap
 
-# Install pre-commit hooks if a configuration exists
 if [ -f ".pre-commit-config.yaml" ]; then
   echo "Installing pre-commit hooks..."
   uv pip install pre-commit
@@ -64,33 +57,28 @@ else
 fi
 
 echo "Installing the custom component in editable mode..."
-# This assumes your custom component is under custom_components/messages_store
-# and that it has a pyproject.toml or setup.py for installation.
-# If your component doesn't have a pyproject.toml for build, this might need adjustment.
-# For now, we ensure homeassistant is installed, which is the primary dependency.
-uv pip install -e ./custom_components/messages_store --config-settings editable_mode=compat
+uv pip install -e . --config-settings editable_mode=compat
 
 echo "Ensuring Home Assistant configuration..."
 hass --script ensure_config -c config
 
-# Add default logger settings if not present in configuration.yaml
 CONFIG_YAML="config/configuration.yaml"
-if [ -f "\$CONFIG_YAML" ]; then
-    if ! grep -q "logger:" "\$CONFIG_YAML"; then
-        echo "Adding default logger configuration to \$CONFIG_YAML..."
-        echo "
+if [ -f "$CONFIG_YAML" ]; then
+  if ! grep -q "logger:" "$CONFIG_YAML"; then
+    echo "Adding default logger configuration to $CONFIG_YAML..."
+    cat >> "$CONFIG_YAML" <<'CONF'
 logger:
   default: info
   logs:
     homeassistant.components.automation: debug
     homeassistant.components.script: debug
     custom_components.messages_store: debug # Add your custom component here
-" >> "\$CONFIG_YAML"
-    else
-        echo "Logger configuration already present in \$CONFIG_YAML."
-    fi
+CONF
+  else
+    echo "Logger configuration already present in $CONFIG_YAML."
+  fi
 else
-    echo "Warning: \$CONFIG_YAML not found. Skipping logger configuration."
+  echo "Warning: $CONFIG_YAML not found. Skipping logger configuration."
 fi
 
 echo "script/setup finished."

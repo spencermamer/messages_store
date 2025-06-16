@@ -346,7 +346,7 @@ This repository includes a pre-configured development container (devcontainer) f
 
 The development container comes with:
 
-*   Python 3.11+
+*   Python 3.13+
 *   Home Assistant Core (installed via `requirements_dev.txt`)
 *   `uv` for fast package management
 *   Pre-configured VS Code extensions for Python development (Ruff, Pylint, Pylance), YAML, Prettier, and GitHub Copilot.
@@ -356,8 +356,7 @@ The development container comes with:
 
 ### Running Home Assistant
 
-*   Once the devcontainer is up and running, Home Assistant should start automatically as part of the `postStartCommand`.
-*   If you need to start it manually or if it was stopped, open a terminal in VS Code (Terminal > New Terminal) and run:
+*   Once the devcontainer is up and running, open a terminal in VS Code (Terminal > New Terminal) and start Home Assistant manually:
     ```bash
     hass -c config
     ```
