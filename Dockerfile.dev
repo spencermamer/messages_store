@@ -11,7 +11,8 @@ RUN \
     && pipx uninstall pylint
 
 RUN \
-    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - \
+    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg -o /etc/apt/trusted.gpg.d/yarnpkg.gpg \
+    && chmod 644 /etc/apt/trusted.gpg.d/yarnpkg.gpg \
     && apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         bluez \
