@@ -54,12 +54,9 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
 WORKDIR /tmp
 
-# Install Python dependencies from requirements if present
-COPY requirements.txt ./
-COPY homeassistant/package_constraints.txt homeassistant/package_constraints.txt
+# Install Python dependencies for development
+COPY requirements_dev.txt ./requirements.txt
 RUN uv pip install -r requirements.txt
-COPY requirements_test.txt requirements_test_pre_commit.txt ./
-RUN uv pip install -r requirements_test.txt
 
 WORKDIR /workspaces
 

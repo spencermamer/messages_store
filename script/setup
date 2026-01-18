@@ -56,7 +56,8 @@ else
   echo "No .pre-commit-config.yaml found. Skipping pre-commit setup."
 fi
 
-# Skipping editable install since no pyproject or setup.py is present
+echo "Installing the custom component in editable mode..."
+uv pip install -e . --config-settings editable_mode=compat
 
 echo "Ensuring Home Assistant configuration..."
 hass --script ensure_config -c config

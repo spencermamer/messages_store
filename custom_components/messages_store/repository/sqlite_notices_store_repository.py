@@ -46,13 +46,17 @@ class SQLiteNoticeStoreRepository(NoticesStore):
             c.execute("SELECT 1 FROM notices_store WHERE slug = ?", (slug,))
             return c.fetchone() is not None
 
-    def retrieve_notice(self, slug: str) -> Optional[dict]:
+    def retrieve_notice(self, slug: str) -> Optional[str]:
+        """Return the notice content for the provided slug."""
         with sqlite3.connect(self.db_path) as conn:
-            conn.row_factory = sqlite3.Row 
+            conn.row_factory = sqlite3.Row
             c = conn.cursor()
-            c.execute("SELECT slug, notice, priority, audience, expiration_date, acknowledged FROM notices_store WHERE slug = ?", (slug,))
+            c.execute(
+                "SELECT notice FROM notices_store WHERE slug = ?",
+                (slug,),
+            )
             result = c.fetchone()
-            return dict(result) if result else None
+            return result["notice"] if result else None
 
     def delete_notice(self, slug: str) -> bool:
         with sqlite3.connect(self.db_path) as conn:

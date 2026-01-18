@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=67"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "messages-store"
+version = "0.1.0"
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["custom_components.messages_store"]
+
+[tool.setuptools.package-data]
+"custom_components.messages_store" = [
+  "*.json",
+  "*.js",
+  "services.yaml",
+  "translations/*.json"
+]
