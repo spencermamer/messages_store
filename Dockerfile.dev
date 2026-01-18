@@ -61,5 +61,5 @@ RUN uv pip install -r requirements.txt
 
 WORKDIR /workspaces
 
-# Set the default shell to bash instead of sh
-ENV SHELL /bin/bash
+# Set the default shell to zsh
+ENV SHELL /usr/bin/zsh
